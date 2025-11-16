@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>마이워치</title>
+
+<!-- manifest -->
+<link rel="manifest" id="manifest-placeholder">
+
+<!-- iOS -->
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black" />
+<link rel="apple-touch-icon" href="A47A3114-D5FA-4034-A494-F38D0538512F.png">
+
+<style>
+:root{
+  --bg:#101014;
+  --soft:#1a1a1f;
+  --glass:rgba(255,255,255,0.05);
+  --border:rgba(255,255,255,0.12);
+  --inner:inset 0 0 4px rgba(255,255,255,0.12);
+  --outer:0 3px 8px rgba(0,0,0,0.45);
+  --radius:6px;
+  --text:#fff;
+  --sub:#b6b6b6;
+  --accent:#3b7bff;
+}
+
+html,body{
+  margin:0;
+  background:var(--bg);
+  color:var(--text);
+  font-family:-apple-system, BlinkMacSystemFont, "SF Pro", Inter, Roboto, sans-serif;
+}
+
+.app{
+  max-width:1000px;
+  margin:0 auto;
+  padding:18px;
+}
+
+header{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;}
+h1{margin:0;font-size:20px;font-weight:600;}
+.small{color:var(--sub);font-size:13px;}
+
+.sq{
+  background:var(--glass);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  box-shadow:var(--inner), var(--outer);
+  backdrop-filter:blur(16px);
+}
+
+input[type="text"], input[type="file"]{
+  width:100%;
+  padding:10px;
+  border-radius:var(--radius);
+  background:var(--glass);
+  border:1px solid var(--border);
+  color:var(--text);
+  box-shadow:var(--inner);
+  font-size:16px;
+}
+
+.btn{
+  padding:10px;
+  border-radius:var(--radius);
+  border:1px solid var(--border);
+  background:var(--glass);
+  color:var(--text);
+  cursor:pointer;
+  box-shadow:var(--inner), var(--outer);
+  font-size:16px;
+}
+.btn:hover{background:rgba(255,255,255,0.08);}
+.btn:active{transform:scale(.97);}
+.ghost{background:transparent !important;}
+
+.cat{
+  flex:1 1 150px;
+  min-width:150px;
+  padding:16px;
+  text-align:center;
+  cursor:pointer;
+}
+.cat h2{margin:0 0 8px 0}
+.cat p{margin:0;font-size:13px;color:var(--sub)}
+
+.categories{
+  display:flex;
+  gap:12px;
+  flex-wrap:wrap;
+  margin-top:18px;
+}
+
+.brand-card{
+  padding:10px;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+
+.brand-image{
+  width:100%;
+  height:120px;
+  border-radius:var(--radius);
+  object-fit:cover;
+  background:#0003;
+}
+
+.brand-row{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+.brand-name{font-weight:600;}
+
+.brand-list{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(160px,1fr));
+  gap:12px;
+  margin-top:14px;
+}
+
+.watch-list{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(150px,1fr));
+  gap:12px;
+  margin-top:14px;
+}
+
+.watch-item{
+  padding:10px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:10px;
+}
+
+.watch-img{
+  width:100%;
+  height:130px;
+  border-radius:var(--radius);
+  object-fit:cover;
+  background:#0003;
+}
+
+#modal{
+  position:fixed;
+  left:0; top:0;
+  width:100vw; height:100vh;
+  background:rgba(0,0,0,0.5);
+  backdrop-filter:blur(8px);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:16px;
+  z-index:1000;
+}
+
+#modal-card{
+  padding:16px;
+  width:90vw;
+  max-width:400px;
+  border-radius:var(--radius);
+  box-sizing:border-box;
+  overflow-y:auto;
+  max-height:90vh;
+}
+
+#modal-card input[type="text"],
+#modal-card input[type="file"]{margin-top:8px;}
+#modal-card .btn{flex:1;margin-top:8px;font-size:16px;}
+#modal-card .btn + .btn{margin-left:8px;}
+
+main section{display:none;}
+main section.active{display:block;}
+
+@media(max-width:480px){
+  .brand-card, .watch-item{padding:8px;}
+  .brand-list, .watch-list{grid-template-columns:1fr;}
+  .categories{flex-direction:column;gap:12px;}
+  input[type="text"], input[type="file"]{font-size:16px;padding:10px;}
+  .btn{font-size:16px;padding:10px;}
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+<header>
+  <div>
+    <h1>마이워치</h1>
+    <div class="small"></div>
+  </div>
+  <div id="nav-actions"></div>
+</header>
+
+<main>
+  <section id="page-main" class="active">
+    <div class="small">카테고리를 선택하세요</div>
+    <div class="categories" id="categories-root"></div>
+  </section>
+
+  <section id="page-category">
+    <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px;">
+      <button class="btn ghost" onclick="showMain()">←</button>
+      <strong id="category-title"></strong>
+    </div>
+
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;">
+      <input type="text" id="brand-search" placeholder="브랜드 검색">
+      <button class="btn" onclick="openAddBrand()">브랜드 추가</button>
+    </div>
+
+    <div class="brand-list" id="brand-list"></div>
+  </section>
+
+  <section id="page-brand">
+    <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px;">
+      <button class="btn ghost" onclick="showCategory(currentCategoryIndex)">←</button>
+      <strong id="brand-title"></strong>
+    </div>
+
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;">
+      <input type="text" id="watch-name" placeholder="시계 이름">
+      <input type="file" id="watch-img" accept="image/*">
+      <button class="btn" onclick="addWatch()">시계 추가</button>
+    </div>
+
+    <div class="watch-list" id="watch-list"></div>
+  </section>
+</main>
+
+<div id="modal">
+  <div id="modal-card" class="sq"></div>
+</div>
+
+<script>
+// ===== 데이터 =====
+let categories = JSON.parse(localStorage.getItem("MW_data") || "null");
+if(!categories) categories = [
+  {name:"보유",brands:[]},{name:"미보유",brands:[]},{name:"추억",brands:[]}
+];
+
+let currentCategoryIndex=null,currentBrandIndex=null,currentWatchIndex=null;
+function save(){ localStorage.setItem("MW_data",JSON.stringify(categories)); }
+
+function showPage(id){
+  document.querySelectorAll("main section").forEach(sec=>sec.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+}
+
+// ===== 메인 =====
+function renderMain(){
+  const root=document.getElementById("categories-root");
+  root.innerHTML="";
+  categories.forEach((cat,i)=>{
+    const el=document.createElement("div");
+    el.className="sq cat";
+    el.innerHTML=`<h2>${cat.name}</h2><p>${cat.brands.length}개 브랜드</p>`;
+    el.onclick=()=>showCategory(i);
+    root.appendChild(el);
+  });
+}
+renderMain();
+function showMain(){ currentCategoryIndex=null; showPage("page-main"); }
+
+// ===== 카테고리 =====
+function showCategory(i){
+  currentCategoryIndex=i;
+  document.getElementById("category-title").textContent=categories[i].name;
+  document.getElementById("brand-search").value="";
+  renderBrandList();
+  showPage("page-category");
+}
+
+function renderBrandList(){
+  const wrap=document.getElementById("brand-list");
+  wrap.innerHTML="";
+  const q=document.getElementById("brand-search").value.toLowerCase();
+  categories[currentCategoryIndex].brands.forEach((brand,bi)=>{
+    if(q && !brand.name.toLowerCase().includes(q)) return;
+    const card=document.createElement("div");
+    card.className="sq brand-card";
+    card.innerHTML=`
+      <img src="${brand.img}" class="brand-image">
+      <div class="brand-row">
+        <div>
+          <div class="brand-name">${brand.name}</div>
+          <div class="small">${brand.watches.length}개 시계</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px;">
+          <button class="btn" onclick="showBrand(${bi})">열기</button>
+          <button class="btn ghost" onclick="deleteBrand(${bi})">삭제</button>
+        </div>
+      </div>
+      <div style="display:flex;gap:6px;">
+        <button class="btn ghost" onclick="moveBrandUp(${bi})">↑</button>
+        <button class="btn ghost" onclick="moveBrandDown(${bi})">↓</button>
+      </div>
+    `;
+    wrap.appendChild(card);
+  });
+  updateGridColumns();
+}
+function deleteBrand(i){ if(confirm("삭제할까요?")){ categories[currentCategoryIndex].brands.splice(i,1); save(); renderBrandList(); }}
+function moveBrandUp(i){ if(i===0)return; let arr=categories[currentCategoryIndex].brands; [arr[i],arr[i-1]]=[arr[i-1],arr[i]]; save(); renderBrandList(); }
+function moveBrandDown(i){ let arr=categories[currentCategoryIndex].brands; if(i===arr.length-1)return; [arr[i],arr[i+1]]=[arr[i+1],arr[i]]; save(); renderBrandList(); }
+
+// ===== 모달/브랜드 추가 =====
+function openAddBrand(){
+  const modal=document.getElementById("modal");
+  const card=document.getElementById("modal-card");
+  card.innerHTML=`
+    <h3 style="margin-top:0;">브랜드 추가</h3>
+    <input id="b-name" type="text" placeholder="브랜드명">
+    <div style="margin-top:8px;"><input id="b-img" type="file" accept="image/*"></div>
+    <div style="display:flex;gap:8px;margin-top:12px;">
+      <button class="btn" onclick="addBrand()">추가</button>
+      <button class="btn ghost" onclick="closeModal()">취소</button>
+    </div>
+  `;
+  modal.style.display="flex";
+}
+function addBrand(){
+  const name=document.getElementById("b-name").value.trim();
+  const file=document.getElementById("b-img").files[0];
+  if(!name){ alert("브랜드명을 입력하세요"); return; }
+  if(file){ const fr=new FileReader(); fr.onload=e=>{ pushBrand(name,e.target.result); closeModal(); }; fr.readAsDataURL(file); }
+  else{ pushBrand(name,""); closeModal(); }
+}
+function pushBrand(name,img){ categories[currentCategoryIndex].brands.push({name,img,watches:[]}); save(); renderBrandList(); }
+function closeModal(){ document.getElementById("modal").style.display="none"; }
+
+// ===== 브랜드 내부 / 시계 =====
+function showBrand(bi){ currentBrandIndex=bi; document.getElementById("brand-title").textContent=categories[currentCategoryIndex].brands[bi].name; renderWatchList(); showPage("page-brand"); }
+function renderWatchList(){
+  const wrap=document.getElementById("watch-list");
+  const brand=categories[currentCategoryIndex].brands[currentBrandIndex];
+  wrap.innerHTML="";
+  brand.watches.forEach((w,wi)=>{
+    const item=document.createElement("div");
+    item.className="sq watch-item";
+    item.innerHTML=`
+      <img src="${w.img}" class="watch-img">
+      <div style="font-weight:600;">${w.name}</div>
+      <div style="display:flex;gap:8px;width:100%;">
+        <button class="btn" onclick="editWatch(${wi})">수정</button>
+        <button class="btn ghost" onclick="deleteWatch(${wi})">삭제</button>
+      </div>
+    `;
+    wrap.appendChild(item);
+  });
+  updateGridColumns();
+}
+function addWatch(){
+  const name=document.getElementById("watch-name").value.trim();
+  const file=document.getElementById("watch-img").files[0];
+  if(!name){ alert("이름 입력"); return; }
+  if(!file){ alert("이미지를 선택하세요"); return; }
+  const fr=new FileReader();
+  fr.onload=e=>{
+    categories[currentCategoryIndex].brands[currentBrandIndex].watches.push({name,img:e.target.result});
+    save(); document.getElementById("watch-name").value=""; document.getElementById("watch-img").value=null; renderWatchList();
+  }
+  fr.readAsDataURL(file);
+}
+function deleteWatch(i){ if(confirm("삭제?")){ categories[currentCategoryIndex].brands[currentBrandIndex].watches.splice(i,1); save(); renderWatchList(); }}
+
+// ===== 시계 수정 모달 =====
+function editWatch(i){
+  currentWatchIndex=i;
+  const watch=categories[currentCategoryIndex].brands[currentBrandIndex].watches[i];
+  const modal=document.getElementById("modal");
+  const card=document.getElementById("modal-card");
+  card.innerHTML=`
+    <h3 style="margin-top:0;">시계 수정</h3>
+    <input id="edit-name" type="text" value="${watch.name}">
+    <div style="margin-top:8px;"><input id="edit-img" type="file" accept="image/*"></div>
+    <div style="display:flex;gap:8px;margin-top:12px;">
+      <button class="btn" onclick="updateWatch()">저장</button>
+      <button class="btn ghost" onclick="closeModal()">취소</button>
+    </div>
+  `;
+  modal.style.display="flex";
+}
+function updateWatch(){
+  const name=document.getElementById("edit-name").value.trim();
+  const file=document.getElementById("edit-img").files[0];
+  if(!name){ alert("이름 입력"); return; }
+  const watch=categories[currentCategoryIndex].brands[currentBrandIndex].watches[currentWatchIndex];
+  if(file){ const fr=new FileReader(); fr.onload=e=>{ watch.name=name; watch.img=e.target.result; save(); renderWatchList(); closeModal(); }; fr.readAsDataURL(file); }
+  else{ watch.name=name; save(); renderWatchList(); closeModal(); }
+}
+
+// ===== 모바일/가로모드 그리드 =====
+function updateGridColumns(){
+  const isLandscape=window.innerWidth>window.innerHeight;
+  const brandList=document.getElementById("brand-list");
+  const watchList=document.getElementById("watch-list");
+  if(isLandscape){
+    const columns=Math.floor(window.innerWidth/180);
+    brandList.style.gridTemplateColumns=`repeat(${columns},1fr)`;
+    watchList.style.gridTemplateColumns=`repeat(${columns},1fr)`;
+  } else{
+    brandList.style.gridTemplateColumns=`1fr`;
+    watchList.style.gridTemplateColumns=`1fr`;
+  }
+}
+updateGridColumns();
+window.addEventListener("resize",updateGridColumns);
+
+// ===== PWA =====
+const manifest={
+  name:"마이워치",
+  short_name:"마이워치",
+  start_url:"./",
+  display:"standalone",
+  theme_color:"#000000",
+  background_color:"#000000",
+  icons:[
+    {src:"icon-192.png",sizes:"192x192",type:"image/png"},
+    {src:"icon-512.png",sizes:"512x512",type:"image/png"}
+  ]
+};
+const mBlob=new Blob([JSON.stringify(manifest)],{type:"application/json"});
+document.getElementById("manifest-placeholder").href=URL.createObjectURL(mBlob);
+
+const swBlob=new Blob([`
+self.addEventListener("install",e=>self.skipWaiting());
+self.addEventListener("activate",e=>self.clients.claim());
+self.addEventListener("fetch",e=>e.respondWith(fetch(e.request).catch(()=>{})));
+`],{type:"text/javascript"});
+if("serviceWorker" in navigator){navigator.serviceWorker.register(URL.createObjectURL(swBlob));}
+</script>
+</body>
+</html>
