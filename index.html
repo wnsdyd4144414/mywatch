@@ -381,13 +381,7 @@ function pushBrand(name,img){
   categories[currentCategoryIndex].brands.push({name,img,watches:[]});
   save(); renderBrandList();
 }
-function closeModal(){
-  const modal = document.getElementById("modal");
-  modal.style.display = "none";
-  document.activeElement.blur(); // 포커스 제거
-  setTimeout(()=>
-    
-  }
+function closeModal(){ document.getElementById("modal").style.display="none"; }
 /* ===== 브랜드 내부 ===== */
 function showBrand(bi){
   currentBrandIndex=bi;
