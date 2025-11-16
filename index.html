@@ -384,19 +384,10 @@ function pushBrand(name,img){
 function closeModal(){
   const modal = document.getElementById("modal");
   modal.style.display = "none";
-
-  // 포커스 문제 해결
-  const inputs = modal.querySelectorAll("input, textarea");
-  inputs.forEach(inp=>{
-    inp.disabled = true;  // 임시로 비활성화
-  });
   document.activeElement.blur(); // 포커스 제거
-  setTimeout(()=>{
-    inputs.forEach(inp=>inp.disabled=false); // 다시 활성화
-    window.scrollTo(0,0); // 화면 초기화
-  },50);
-}
-}
+  setTimeout(()=>
+    
+  }
 /* ===== 브랜드 내부 ===== */
 function showBrand(bi){
   currentBrandIndex=bi;
