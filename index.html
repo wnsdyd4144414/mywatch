@@ -1,293 +1,668 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<title>마이워치</title>
-<link rel="manifest" id="manifest-placeholder">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black">
-<link rel="apple-touch-icon" href="A47A3114-D5FA-4034-A494-F38D0538512F.png">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, user-scalable=no, maximum-scale=1">
+<title>MyWatch</title>
+
 <style>
-:root{
---bg:#101014;--soft:#1a1a1f;--glass:rgba(255,255,255,0.05);
---border:rgba(255,255,255,0.12);--inner:inset 0 0 4px rgba(255,255,255,0.12);
---outer:0 3px 8px rgba(0,0,0,0.45);--radius:6px;--text:#fff;
---sub:#b6b6b6;--accent:#3b7bff;--income:#3be0ff;--expense:#ff3b3b;
+/* ====== CSS 전체 ============================= */
+
+body {
+    margin: 0;
+    padding: 0;
+    background: #111;
+    color: white;
+    font-family: 'Pretendard', sans-serif;
+    overflow-x: hidden;
+    touch-action: manipulation;
 }
-html,body{margin:0;height:100%;overflow:hidden;font-family:-apple-system,BlinkMacSystemFont,"SF Pro",Inter,Roboto,sans-serif;color:var(--text);background:var(--bg);}
-.app{max-width:1000px;margin:0 auto;padding:18px;height:100%;display:flex;flex-direction:column;}
-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
-h1{margin:0;font-size:20px;font-weight:600;}
-.small{color:var(--sub);font-size:13px;}
-.btn{padding:8px 10px;border-radius:var(--radius);border:1px solid var(--border);background:var(--glass);color:var(--text);cursor:pointer;box-shadow:var(--inner),var(--outer);}
-.btn:hover{background:rgba(255,255,255,0.08);}
-.btn:active{transform:scale(.97);}
-.btn.ghost{background:transparent !important;}
-.btn.white{color:#fff;}
-.sq{background:var(--glass);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--inner),var(--outer);backdrop-filter:blur(16px);}
-input[type=text],input[type=number],input[type=date],input[type=file],textarea,select{width:100%;padding:8px;border-radius:var(--radius);background:var(--glass);border:1px solid var(--border);color:var(--text);box-shadow:var(--inner);font-size:16px;}
-textarea{resize:none;}
-.categories,.brand-list,.watch-list,.account-history-list{display:flex;flex-wrap:wrap;gap:12px;margin-top:14px;}
-.cat,.brand-card,.watch-item,.account-item{flex:1 1 150px;min-width:150px;padding:12px;cursor:pointer;}
-.brand-image,.watch-img{width:100%;height:120px;border-radius:var(--radius);object-fit:cover;background:#0003;}
-main section{display:none;height:100%;overflow:hidden;flex-direction:column;} 
-main section.active{display:flex;}
-.fab{position:fixed;right:20px;bottom:20px;width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:28px;background:var(--glass);box-shadow:var(--inner),var(--outer);cursor:pointer;z-index:999;}
-#account-history{flex-grow:1;overflow-y:auto;margin-bottom:10px;}
-.account-item{display:flex;flex-direction:column;gap:4px;}
-.account-buttons{display:flex;gap:6px;}
+
+.page { display: none; }
+.page.active { display: block; }
+
+.container { padding: 20px; }
+
+.square {
+    background: rgba(255,255,255,0.05);
+    border-radius: 16px;
+    padding: 20px;
+    margin: 15px 0;
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255,255,255,0.1);
+    box-shadow:
+        inset 2px 2px 4px rgba(255,255,255,0.07),
+        inset -2px -2px 4px rgba(0,0,0,0.4),
+        4px 4px 8px rgba(0,0,0,0.4);
+}
+
+input, textarea {
+    width: 100%;
+    padding: 14px;
+    margin: 10px 0;
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 12px;
+    color: white;
+    font-size: 15px;
+}
+
+button {
+    padding: 12px 16px;
+    background: rgba(255,255,255,0.1);
+    border: none;
+    color: white;
+    border-radius: 12px;
+    font-size: 15px;
+    cursor: pointer;
+    transition: 0.15s;
+}
+
+button:active {
+    transform: scale(0.95);
+    background: rgba(255,255,255,0.25);
+}
+
+.backBtn {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    background: rgba(255,255,255,0.15);
+    padding: 10px 14px;
+    border-radius: 10px;
+    z-index: 100;
+}
+
+.topRightBtn {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 10px 14px;
+    background: rgba(255,255,255,0.15);
+    border-radius: 10px;
+    z-index: 100;
+}
+
+.floatingBtn {
+    position: fixed;
+    right: 20px;
+    bottom: 30px;
+    width: 65px;
+    height: 65px;
+    border-radius: 20px;
+    background: rgba(255,255,255,0.15);
+    font-size: 40px;
+    text-align: center;
+    line-height: 57px;
+    backdrop-filter: blur(10px);
+}
+
+.listItem {
+    padding: 12px;
+    border-bottom: 1px solid rgba(255,255,255,0.15);
+    display: flex;
+    justify-content: space-between;
+}
+
+.scrollArea {
+    max-height: 300px;
+    overflow-y: auto;
+    padding-right: 8px;
+}
+
+.spend { color:#ff6666; }
+.income { color:#66cfff; }
 </style>
 </head>
+
+
 <body>
-<div class="app">
-<header>
-  <div><h1>마이워치</h1><div class="small">Created by jjun</div></div>
-  <div id="nav-actions">
-    <button class="btn white" onclick="showAccount()">💰</button>
-    <button class="btn white" onclick="refreshPage()">R</button>
-  </div>
-</header>
 
-<main>
-<!-- 홈 -->
-<section id="page-main" class="active">
-  <div class="small">카테고리를 선택하세요</div>
-  <div class="categories" id="categories-root"></div>
-</section>
+<!-- ======================= 홈 ============================= -->
+<div id="homePage" class="page active">
+    <button class="topRightBtn" onclick="openPage('accountPage')">💰</button>
+    <button class="backBtn" onclick="location.reload()">⟳</button>
 
-<!-- 카테고리 -->
-<section id="page-category">
-  <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
-    <button class="btn ghost" onclick="goBack()">←</button>
-    <strong id="category-title"></strong>
-  </div>
-  <input type="text" id="brand-search" placeholder="브랜드 검색" oninput="renderBrandList()">
-  <div class="brand-list" id="brand-list"></div>
-  <div class="fab" onclick="goAddBrand()">＋</div>
-</section>
+    <div class="container" style="margin-top:70px;">
+        <h1>MyWatch</h1>
+        <div>created by jjun</div>
 
-<!-- 브랜드 -->
-<section id="page-brand">
-  <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
-    <button class="btn ghost" onclick="goBack()">←</button>
-    <strong id="brand-title"></strong>
-  </div>
-  <input type="text" id="watch-search" placeholder="시계 검색" oninput="renderWatchList()">
-  <div class="watch-list" id="watch-list"></div>
-  <div class="fab" onclick="goAddWatch()">＋</div>
-</section>
+        <!-- 브랜드 검색 -->
+        <input id="brandSearch" placeholder="브랜드 검색..." oninput="renderBrandList()">
 
-<!-- 시계 추가 -->
-<section id="page-add-watch">
-  <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
-    <button class="btn ghost" onclick="goBack()">←</button>
-    <strong>시계 추가</strong>
-  </div>
-  <input type="text" id="new-watch-name" placeholder="시계 이름">
-  <input type="file" id="new-watch-img" accept="image/*">
-  <button class="btn" onclick="addWatchFromPage()">추가</button>
-</section>
+        <!-- 브랜드 리스트 -->
+        <div id="brandList" class="square"></div>
 
-<!-- 브랜드 추가 -->
-<section id="page-add-brand">
-  <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
-    <button class="btn ghost" onclick="goBack()">←</button>
-    <strong>브랜드 추가</strong>
-  </div>
-  <input type="text" id="new-brand-name" placeholder="브랜드 이름">
-  <input type="file" id="new-brand-img" accept="image/*">
-  <button class="btn" onclick="addBrandFromPage()">추가</button>
-</section>
+        <!-- 시계 검색 -->
+        <input id="watchSearch" placeholder="시계 검색..." oninput="renderWatchList()">
 
-<!-- 가계부 -->
-<section id="page-account">
-  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-    <button class="btn ghost" onclick="goBack()">←</button>
-    <strong>가계부</strong>
-    <div>
-      <button class="btn" onclick="prevMonth()">◀</button>
-      <button class="btn" onclick="nextMonth()">▶</button>
+        <!-- 시계 리스트 -->
+        <div id="watchList" class="square"></div>
     </div>
-  </div>
-  <div id="account-month-total" style="text-align:center;font-weight:600;margin-bottom:10px;"></div>
-  <div id="weekday-row" style="display:flex;gap:6px;justify-content:space-between;margin-bottom:6px;"></div>
-  <div id="account-history"></div>
-  <div style="display:flex;justify-content:space-between;gap:8px;position:sticky;bottom:0;background:var(--bg);padding-top:4px;">
-    <button class="btn" onclick="showAccountByType('expense')" id="sum-expense"></button>
-    <button class="btn" onclick="showAccountByType('income')" id="sum-income"></button>
-    <div id="sum-final" style="font-weight:600"></div>
-  </div>
-  <div class="fab" onclick="openAccountPopup()">＋</div>
-</section>
-</main>
 
-<!-- 모달 -->
-<div id="modal" style="position:fixed;top:0;left:0;width:100%;height:100%;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,0.4);backdrop-filter:blur(6px);z-index:999;">
-  <div id="modal-card" class="sq" style="max-width:400px;width:90%;padding:16px;"></div>
+    <button class="floatingBtn" onclick="openAddWatchPage()">＋</button>
 </div>
 
-<script>
-// ===== 데이터 =====
-let categories = JSON.parse(localStorage.getItem("MW_data")||"null");
-if(!categories) categories=[{name:"보유",brands:[]},{name:"미보유",brands:[]},{name:"추억",brands:[]}];
-let accounts = JSON.parse(localStorage.getItem("MW_accounts")||"[]");
-let currentCategoryIndex=null,currentBrandIndex=null,pageStack=[];
-let currentMonth = new Date().getMonth();
-let currentYear = new Date().getFullYear();
 
-function save(){localStorage.setItem("MW_data",JSON.stringify(categories));}
-function saveAccounts(){localStorage.setItem("MW_accounts",JSON.stringify(accounts));}
 
-// ===== 페이지 전환 =====
-function showPage(id){document.querySelectorAll("main section").forEach(sec=>sec.classList.remove("active"));document.getElementById(id).classList.add("active");if(pageStack[pageStack.length-1]!==id) pageStack.push(id);}
-function goBack(){if(pageStack.length>1){pageStack.pop();showPage(pageStack[pageStack.length-1]);}else showMain();}
-function refreshPage(){location.reload();}
 
-// ===== 홈 =====
-function renderMain(){
-  const root=document.getElementById("categories-root"); root.innerHTML="";
-  categories.forEach((cat,i)=>{
-    const watchCount=cat.brands.reduce((a,b)=>a+b.watches.length,0);
-    const el=document.createElement("div"); el.className="sq cat";
-    el.innerHTML=`<h2>${cat.name}</h2><p>${cat.brands.length}개 브랜드, ${watchCount}개 시계</p>`;
-    el.onclick=()=>showCategory(i);
-    root.appendChild(el);
-  });
-}
-function showMain(){currentCategoryIndex=null;showPage("page-main");}
-renderMain();
+<!-- ======================= 시계 추가 ====================== -->
+<div id="addWatchPage" class="page">
+    <button class="backBtn" onclick="openPage('homePage')">←</button>
 
-// ===== 카테고리/브랜드 =====
-function showCategory(i){currentCategoryIndex=i;document.getElementById("category-title").textContent=categories[i].name;document.getElementById("brand-search").value="";renderBrandList();showPage("page-category");}
-function renderBrandList(){
-  const wrap=document.getElementById("brand-list");wrap.innerHTML="";
-  const q=document.getElementById("brand-search").value.toLowerCase();
-  categories[currentCategoryIndex].brands.forEach((b,bi)=>{
-    if(q&&!b.name.toLowerCase().includes(q)) return;
-    const card=document.createElement("div"); card.className="sq brand-card";
-    card.innerHTML=`<img src="${b.img}" class="brand-image"><div style="display:flex;justify-content:space-between;"><div><div class="brand-name">${b.name}</div><div class="small">${b.watches.length}개 시계</div></div><div style="display:flex;flex-direction:column;gap:6px;"><button class="btn" onclick="showBrand(${bi})">열기</button><button class="btn ghost" onclick="deleteBrand(${bi})">삭제</button></div></div>`;
-    wrap.appendChild(card);
-  });
-}
-function goAddBrand(){showPage("page-add-brand");}
-function addBrandFromPage(){
-  const name=document.getElementById("new-brand-name").value.trim(); const file=document.getElementById("new-brand-img").files[0];
-  if(!name){alert("브랜드명을 입력하세요");return;}
-  const fr=new FileReader();
-  fr.onload=e=>{categories[currentCategoryIndex].brands.push({name,img:e.target.result,watches:[]});save();renderBrandList();showCategory(currentCategoryIndex);document.getElementById("new-brand-name").value="";document.getElementById("new-brand-img").value=null;};
-  if(file) fr.readAsDataURL(file); else fr.onload({target:{result:""}})
+    <div class="container" style="margin-top:70px;">
+        <h2>시계 추가</h2>
+
+        <input id="watchBrand" placeholder="브랜드">
+        <input id="watchModel" placeholder="모델명">
+        <input id="watchPrice" type="number" placeholder="가격">
+        <input id="watchYear" type="number" placeholder="구매년도 (선택)">
+        <textarea id="watchMemo" placeholder="메모"></textarea>
+
+        <button onclick="addWatch()">추가</button>
+    </div>
+</div>
+
+
+
+
+<!-- ======================= 브랜드 추가 ==================== -->
+<div id="addBrandPage" class="page">
+    <button class="backBtn" onclick="openPage('homePage')">←</button>
+
+    <div class="container" style="margin-top:70px;">
+        <h2>브랜드 추가</h2>
+
+        <input id="brandName" placeholder="브랜드명 입력">
+
+        <button onclick="addBrand()">추가</button>
+    </div>
+</div>
+
+
+
+<!-- ======================= 가계부 팝업 ==================== -->
+<div id="accountPopup" class="page" 
+     style="position:fixed; top:0; left:0; width:100%; height:100%;
+            background:rgba(0,0,0,0.6); backdrop-filter:blur(8px); display:none;">
+    <div class="container" style="margin-top:120px;">
+        <div class="square" style="text-align:center;">
+            <h2>항목 선택</h2>
+            <button onclick="openAddSpendPage()" style="width:100%; margin-top:20px;">구매 (지출)</button>
+            <button onclick="openAddIncomePage()" style="width:100%; margin-top:12px;">판매 (수입)</button>
+            <button onclick="closeAccountPopup()" style="margin-top:20px;">닫기</button>
+        </div>
+    </div>
+</div>
+
+
+
+<!-- ======================= 지출 입력 ====================== -->
+<div id="addSpendPage" class="page">
+    <button class="backBtn" onclick="closeSpendIncomePage()">←</button>
+
+    <div class="container" style="margin-top:70px;">
+        <h2>지출 추가</h2>
+
+        <input id="spendPrice" type="number" placeholder="가격">
+        <input id="spendPlace" placeholder="구매처">
+        <input id="spendDate" type="date">
+        <input id="spendModel" placeholder="모델명">
+        <input id="spendBrand" placeholder="브랜드">
+        <textarea id="spendMemo" placeholder="구매 이유"></textarea>
+
+        <button onclick="addSpend()">추가</button>
+    </div>
+</div>
+
+
+
+<!-- ======================= 수입 입력 ====================== -->
+<div id="addIncomePage" class="page">
+    <button class="backBtn" onclick="closeSpendIncomePage()">←</button>
+
+    <div class="container" style="margin-top:70px;">
+        <h2>수입 추가</h2>
+
+        <input id="incomePrice" type="number" placeholder="가격">
+        <input id="incomePlace" placeholder="판매처">
+        <input id="incomeDate" type="date">
+        <input id="incomeModel" placeholder="모델명">
+        <input id="incomeBrand" placeholder="브랜드">
+        <textarea id="incomeMemo" placeholder="판매 이유"></textarea>
+
+        <button onclick="addIncome()">추가</button>
+    </div>
+</div>
+
+
+
+<!-- ======================= 가계부 메인 ==================== -->
+<div id="accountPage" class="page">
+    <button class="backBtn" onclick="openPage('homePage')">←</button>
+
+    <div class="container" style="margin-top:70px;">
+
+        <div class="square" style="text-align:center;">
+            <button onclick="prevMonth()">←</button>
+            <span id="accountMonthText" style="margin:0 20px; font-size:20px;"></span>
+            <button onclick="nextMonth()">→</button>
+        </div>
+
+        <div class="square" style="text-align:center;">
+            <h3>이번달 총 사용 금액</h3>
+            <div id="monthTotal" style="font-size:22px; margin-top:10px;">0원</div>
+        </div>
+
+        <div class="square" id="weekdayTotals"></div>
+
+        <div id="accountList" class="square scrollArea"></div>
+
+        <div class="square" style="margin-top:20px;">
+            <h3>최종 합계</h3>
+            지출: <span id="totalSpend" class="spend">0</span>원<br>
+            수입: <span id="totalIncome" class="income">0</span>원<br><br>
+            <div style="font-size:22px;">
+                최종: <span id="totalResult">0</span>원
+            </div><br>
+            <button onclick="openSpendList()" class="spend">지출 내역</button>
+            <button onclick="openIncomeList()" class="income">수입 내역</button>
+        </div>
+
+    </div>
+
+    <button class="floatingBtn" onclick="openAccountAddPopup()">＋</button>
+</div>
+
+
+<!-- ======================= 가계부 수정 ==================== -->
+<div id="editAccountPage" class="page">
+    <button class="backBtn" onclick="openPage('accountPage')">←</button>
+
+    <div class="container" style="margin-top:70px;">
+        <h2 id="editAccountTitle">수정</h2>
+
+        <input id="editAccountPrice">
+        <input id="editAccountPlace">
+        <input id="editAccountDate" type="date">
+        <input id="editAccountModel">
+        <input id="editAccountBrand">
+        <textarea id="editAccountMemo"></textarea>
+
+        <button onclick="saveEditedAccount()">저장</button>
+        <button onclick="deleteAccount()" style="background:#ff4444; margin-top:10px;">삭제</button>
+    </div>
+</div>
+
+  <script>
+/* ============================================================
+    기본 페이지 전환
+============================================================ */
+function openPage(id) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
 }
 
-// ===== 브랜드/시계 =====
-function showBrand(bi){currentBrandIndex=bi;document.getElementById("brand-title").textContent=categories[currentCategoryIndex].brands[bi].name;document.getElementById("watch-search").value="";renderWatchList();showPage("page-brand");}
-function renderWatchList(){
-  const wrap=document.getElementById("watch-list");wrap.innerHTML="";
-  const q=document.getElementById("watch-search").value.toLowerCase();
-  categories[currentCategoryIndex].brands[currentBrandIndex].watches.forEach((w,wi)=>{
-    if(q&&!w.name.toLowerCase().includes(q)) return;
-    const item=document.createElement("div");item.className="sq watch-item";item.innerHTML=`<img src="${w.img}" class="watch-img"><div style="font-weight:600;">${w.name}</div>`;
-    wrap.appendChild(item);
-  });
-}
-function goAddWatch(){showPage("page-add-watch");}
-function addWatchFromPage(){
-  const name=document.getElementById("new-watch-name").value.trim();
-  const file=document.getElementById("new-watch-img").files[0];
-  if(!name||!file){alert("입력/선택 필요");return;}
-  const fr=new FileReader();
-  fr.onload=e=>{
-    categories[currentCategoryIndex].brands[currentBrandIndex].watches.push({name,img:e.target.result});
-    save(); renderWatchList(); showBrand(currentBrandIndex);
-    document.getElementById("new-watch-name").value=""; document.getElementById("new-watch-img").value=null;
-  }; fr.readAsDataURL(file);
+
+
+/* ============================================================
+    로컬스토리지 데이터
+============================================================ */
+let brands = JSON.parse(localStorage.getItem("brands") || "[]");
+let watches = JSON.parse(localStorage.getItem("watches") || "[]");
+let account = JSON.parse(localStorage.getItem("account") || "[]");
+
+function saveData() {
+    localStorage.setItem("brands", JSON.stringify(brands));
+    localStorage.setItem("watches", JSON.stringify(watches));
+    localStorage.setItem("account", JSON.stringify(account));
 }
 
-// ===== 가계부: 전체 기능 =====
-function showAccount(){showPage("page-account");renderAccount();}
-function renderAccount(){
-  const historyWrap=document.getElementById("account-history"); historyWrap.innerHTML="";
-  const monthAccounts = accounts.filter(a=>{const d=new Date(a.date); return d.getMonth()===currentMonth && d.getFullYear()===currentYear;});
-  monthAccounts.forEach((a,idx)=>{
-    const item=document.createElement("div"); item.className="sq account-item";
-    item.innerHTML=`<div><b>${a.type==="expense"?"지출":"수입"}</b> - ${a.brand||""} ${a.model||""} : ${a.price}원</div>
-    <div class="account-buttons">
-      <button class="btn" onclick="editAccount(${idx})">수정</button>
-      <button class="btn ghost" onclick="deleteAccount(${idx})">삭제</button>
-    </div>`;
-    historyWrap.appendChild(item);
-  });
-  const sumExpense = monthAccounts.filter(a=>a.type==="expense").reduce((s,a)=>s+a.price,0);
-  const sumIncome = monthAccounts.filter(a=>a.type==="income").reduce((s,a)=>s+a.price,0);
-  document.getElementById("sum-expense").textContent=`지출 ${sumExpense}원`; document.getElementById("sum-expense").style.color="var(--expense)";
-  document.getElementById("sum-income").textContent=`수입 ${sumIncome}원`; document.getElementById("sum-income").style.color="var(--income)";
-  document.getElementById("sum-final").textContent=`총액 ${sumIncome-sumExpense}원`; document.getElementById("sum-final").style.color="var(--text)";
-  document.getElementById("account-month-total").textContent=`${currentYear}년 ${currentMonth+1}월`;
-}
-function openAccountPopup(){
-  const modal=document.getElementById("modal"); const card=document.getElementById("modal-card");
-  card.innerHTML=`<h3 style="margin-top:0;">가계부 추가</h3>
-  <div style="display:flex;gap:8px;"><button class="btn" onclick="addAccount('expense')">구매</button><button class="btn" onclick="addAccount('income')">판매</button></div>
-  <div style="margin-top:12px;"><button class="btn ghost" onclick="closeModal()">취소</button></div>`;
-  modal.style.display="flex";
-}
-function addAccount(type){
-  const modal=document.getElementById("modal"); const card=document.getElementById("modal-card");
-  card.innerHTML=`<h3>${type==="expense"?"구매 추가":"판매 추가"}</h3>
-  <input type="number" id="ac-price" placeholder="가격">
-  <input type="text" id="ac-store" placeholder="${type==="expense"?"구매처":"판매처"}">
-  <input type="date" id="ac-date" placeholder="날짜">
-  <input type="text" id="ac-model" placeholder="모델명">
-  <input type="text" id="ac-brand" placeholder="브랜드">
-  <textarea id="ac-note" placeholder="메모"></textarea>
-  <div style="display:flex;gap:8px;margin-top:8px;"><button class="btn" onclick="saveAccount('${type}')">저장</button>
-  <button class="btn ghost" onclick="closeModal()">취소</button></div>`;
-}
-function saveAccount(type){
-  const price=Number(document.getElementById("ac-price").value);
-  const store=document.getElementById("ac-store").value;
-  const date=document.getElementById("ac-date").value;
-  const model=document.getElementById("ac-model").value;
-  const brand=document.getElementById("ac-brand").value;
-  const note=document.getElementById("ac-note").value;
-  if(!price||!date){alert("가격과 날짜는 필수"); return;}
-  accounts.push({type,price,store,date,model,brand,note});
-  saveAccounts();closeModal();renderAccount();
-}
-function closeModal(){document.getElementById("modal").style.display="none";}
-function deleteAccount(idx){if(confirm("삭제?")){accounts.splice(idx,1);saveAccounts();renderAccount();}}
-function editAccount(idx){
-  const a=accounts[idx];
-  const modal=document.getElementById("modal"); const card=document.getElementById("modal-card");
-  card.innerHTML=`<h3>수정</h3>
-  <input type="number" id="ac-price" value="${a.price}">
-  <input type="text" id="ac-store" value="${a.store}">
-  <input type="date" id="ac-date" value="${a.date}">
-  <input type="text" id="ac-model" value="${a.model}">
-  <input type="text" id="ac-brand" value="${a.brand}">
-  <textarea id="ac-note">${a.note}</textarea>
-  <div style="display:flex;gap:8px;margin-top:8px;"><button class="btn" onclick="saveAccountEdit(${idx})">저장</button>
-  <button class="btn ghost" onclick="closeModal()">취소</button></div>`;
-  modal.style.display="flex";
-}
-function saveAccountEdit(idx){
-  const price=Number(document.getElementById("ac-price").value);
-  const store=document.getElementById("ac-store").value;
-  const date=document.getElementById("ac-date").value;
-  const model=document.getElementById("ac-model").value;
-  const brand=document.getElementById("ac-brand").value;
-  const note=document.getElementById("ac-note").value;
-  if(!price||!date){alert("가격과 날짜 필수"); return;}
-  accounts[idx]={...accounts[idx],price,store,date,model,brand,note};
-  saveAccounts();closeModal();renderAccount();
-}
-function showAccountByType(type){const historyWrap=document.getElementById("account-history");historyWrap.innerHTML=""; accounts.filter(a=>a.type===type).forEach((a,idx)=>{ const item=document.createElement("div"); item.className="sq account-item"; item.innerHTML=`<div><b>${a.type==="expense"?"지출":"수입"}</b> - ${a.brand||""} ${a.model||""} : ${a.price}원</div>`; historyWrap.appendChild(item);});}
-function prevMonth(){currentMonth--; if(currentMonth<0){currentMonth=11; currentYear--;} renderAccount();}
-function nextMonth(){currentMonth++; if(currentMonth>11){currentMonth=0; currentYear++;} renderAccount();}
 
-// ===== 브랜드/시계 검색 & 추가 핀치줌 방지 =====
-document.addEventListener('gesturestart', function (e) { e.preventDefault(); });
+
+/* ============================================================
+    브랜드
+============================================================ */
+function renderBrandList() {
+    const keyword = document.getElementById("brandSearch").value.toLowerCase();
+    const box = document.getElementById("brandList");
+
+    const list = brands
+        .filter(b => b.toLowerCase().includes(keyword))
+        .map(brand => {
+            const count = watches.filter(w => w.brand === brand).length;
+            return `
+                <div class="listItem">
+                    <span>${brand} (${count}개)</span>
+                    <button onclick="deleteBrand('${brand}')">삭제</button>
+                </div>
+            `;
+        }).join("");
+
+    box.innerHTML = list || "브랜드 없음";
+}
+
+function addBrand() {
+    const name = document.getElementById("brandName").value.trim();
+    if (!name) return alert("브랜드명을 입력하세요.");
+
+    brands.push(name);
+    saveData();
+    openPage("homePage");
+    renderBrandList();
+}
+
+function deleteBrand(name) {
+    if (!confirm("해당 브랜드를 삭제하시겠습니까?")) return;
+    brands = brands.filter(b => b !== name);
+
+    // 그 브랜드 시계도 삭제
+    watches = watches.filter(w => w.brand !== name);
+
+    saveData();
+    renderBrandList();
+    renderWatchList();
+}
+
+
+
+/* ============================================================
+    시계
+============================================================ */
+function renderWatchList() {
+    const keyword = document.getElementById("watchSearch").value.toLowerCase();
+    const box = document.getElementById("watchList");
+
+    const list = watches
+        .filter(w => 
+            w.brand.toLowerCase().includes(keyword) ||
+            w.model.toLowerCase().includes(keyword)
+        )
+        .map(w => `
+            <div class="listItem">
+                <span>${w.brand} - ${w.model}</span>
+                <button onclick="editWatch('${w.id}')">수정</button>
+            </div>
+        `).join("");
+
+    box.innerHTML = list || "시계 없음";
+}
+
+function openAddWatchPage() {
+    openPage("addWatchPage");
+}
+
+function addWatch() {
+    const brand = document.getElementById("watchBrand").value.trim();
+    const model = document.getElementById("watchModel").value.trim();
+    const price = document.getElementById("watchPrice").value;
+    const year = document.getElementById("watchYear").value;
+    const memo = document.getElementById("watchMemo").value;
+
+    if (!brand || !model) return alert("브랜드와 모델명은 필수입니다.");
+
+    if (!brands.includes(brand)) brands.push(brand);
+
+    watches.push({
+        id: String(Date.now()),
+        brand,
+        model,
+        price,
+        year,
+        memo
+    });
+
+    saveData();
+    openPage("homePage");
+    renderBrandList();
+    renderWatchList();
+}
+
+
+
+/* ============================================================
+    가계부 — 공통
+============================================================ */
+let currentMonth = new Date();
+
+function updateMonthText() {
+    const y = currentMonth.getFullYear();
+    const m = currentMonth.getMonth() + 1;
+    document.getElementById("accountMonthText").innerText = `${y}년 ${m}월`;
+
+    renderAccountList();
+}
+
+function prevMonth() {
+    currentMonth.setMonth(currentMonth.getMonth() - 1);
+    updateMonthText();
+}
+
+function nextMonth() {
+    currentMonth.setMonth(currentMonth.getMonth() + 1);
+    updateMonthText();
+}
+
+
+
+/* ============================================================
+    가계부 — 메인 리스트 렌더링
+============================================================ */
+function renderAccountList() {
+    const y = currentMonth.getFullYear();
+    const m = currentMonth.getMonth() + 1;
+
+    const listBox = document.getElementById("accountList");
+
+    const filtered = account.filter(a => {
+        const d = new Date(a.date);
+        return d.getFullYear() === y && (d.getMonth() + 1) === m;
+    });
+
+    listBox.innerHTML = filtered.map(a => `
+        <div class="listItem">
+            <span>${a.type === "spend" ? "지출" : "수입"} — ${a.model}</span>
+            <button onclick="openEditAccount('${a.id}')">수정</button>
+        </div>
+    `).join("") || "내역 없음";
+
+    updateTotals();
+    renderWeekdayTotals();
+}
+
+
+
+/* ============================================================
+    가계부 — 주간 합계
+============================================================ */
+function renderWeekdayTotals() {
+    const y = currentMonth.getFullYear();
+    const m = currentMonth.getMonth() + 1;
+
+    const weekdaySum = [0,0,0,0,0,0,0];
+
+    account.forEach(a => {
+        const d = new Date(a.date);
+        if (d.getFullYear() === y && d.getMonth()+1 === m) {
+            const wd = d.getDay();
+            weekdaySum[wd] += (a.type === "spend" ? -a.price : a.price);
+        }
+    });
+
+    const names = ["일","월","화","수","목","금","토"];
+
+    document.getElementById("weekdayTotals").innerHTML = 
+        names.map((n,i)=> `${n}: ${weekdaySum[i]}원`).join("<br>");
+}
+
+
+
+/* ============================================================
+    가계부 — 최종 금액
+============================================================ */
+function updateTotals() {
+    let spend = 0;
+    let income = 0;
+
+    account.forEach(a => {
+        if (a.type === "spend") spend += a.price;
+        else income += a.price;
+    });
+
+    const result = income - spend;
+
+    document.getElementById("totalSpend").innerText = spend;
+    document.getElementById("totalIncome").innerText = income;
+    document.getElementById("totalResult").innerText = result;
+}
+
+
+
+/* ============================================================
+    가계부 — 팝업
+============================================================ */
+function openAccountAddPopup() {
+    document.getElementById("accountPopup").style.display = "block";
+}
+
+function closeAccountPopup() {
+    document.getElementById("accountPopup").style.display = "none";
+}
+
+function openAddSpendPage() {
+    closeAccountPopup();
+    openPage("addSpendPage");
+}
+
+function openAddIncomePage() {
+    closeAccountPopup();
+    openPage("addIncomePage");
+}
+
+function closeSpendIncomePage() {
+    openPage("accountPage");
+}
+
+
+
+/* ============================================================
+    지출 추가
+============================================================ */
+function addSpend() {
+    const price = Number(document.getElementById("spendPrice").value || 0);
+    const place = document.getElementById("spendPlace").value;
+    const date = document.getElementById("spendDate").value;
+    const model = document.getElementById("spendModel").value;
+    const brand = document.getElementById("spendBrand").value;
+    const memo = document.getElementById("spendMemo").value;
+
+    if (!price || !date) return alert("가격과 날짜는 필수입니다.");
+
+    account.push({
+        id: String(Date.now()),
+        type: "spend",
+        price,
+        place,
+        date,
+        model,
+        brand,
+        memo
+    });
+
+    saveData();
+    openPage("accountPage");
+    renderAccountList();
+}
+
+
+
+/* ============================================================
+    수입 추가
+============================================================ */
+function addIncome() {
+    const price = Number(document.getElementById("incomePrice").value || 0);
+    const place = document.getElementById("incomePlace").value;
+    const date = document.getElementById("incomeDate").value;
+    const model = document.getElementById("incomeModel").value;
+    const brand = document.getElementById("incomeBrand").value;
+    const memo = document.getElementById("incomeMemo").value;
+
+    if (!price || !date) return alert("가격과 날짜는 필수입니다.");
+
+    account.push({
+        id: String(Date.now()),
+        type: "income",
+        price,
+        place,
+        date,
+        model,
+        brand,
+        memo
+    });
+
+    saveData();
+    openPage("accountPage");
+    renderAccountList();
+}
+
+
+
+/* ============================================================
+    가계부 — 수정
+============================================================ */
+let editTargetId = null;
+
+function openEditAccount(id) {
+    const item = account.find(a => a.id === id);
+    if (!item) return;
+
+    editTargetId = id;
+
+    document.getElementById("editAccountTitle").innerText =
+        item.type === "spend" ? "지출 수정" : "수입 수정";
+
+    document.getElementById("editAccountPrice").value = item.price;
+    document.getElementById("editAccountPlace").value = item.place;
+    document.getElementById("editAccountDate").value = item.date;
+    document.getElementById("editAccountModel").value = item.model;
+    document.getElementById("editAccountBrand").value = item.brand;
+    document.getElementById("editAccountMemo").value = item.memo;
+
+    openPage("editAccountPage");
+}
+
+function saveEditedAccount() {
+    const item = account.find(a => a.id === editTargetId);
+    if (!item) return;
+
+    item.price = Number(document.getElementById("editAccountPrice").value || 0);
+    item.place = document.getElementById("editAccountPlace").value;
+    item.date = document.getElementById("editAccountDate").value;
+    item.model = document.getElementById("editAccountModel").value;
+    item.brand = document.getElementById("editAccountBrand").value;
+    item.memo = document.getElementById("editAccountMemo").value;
+
+    saveData();
+    openPage("accountPage");
+    renderAccountList();
+}
+
+function deleteAccount() {
+    if (!confirm("삭제하시겠습니까?")) return;
+
+    account = account.filter(a => a.id !== editTargetId);
+    saveData();
+
+    openPage("accountPage");
+    renderAccountList();
+}
+
+
+
+/* ============================================================
+    초기 렌더링
+============================================================ */
+renderBrandList();
+renderWatchList();
+updateMonthText();
 </script>
-</div>
-</body>
-</html>
